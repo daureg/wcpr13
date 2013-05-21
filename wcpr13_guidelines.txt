@@ -1,0 +1,97 @@
+﻿
+==DATA DESCRIPTION==
+
+this data have been released as part of the
+Workshop on Computational Personality Recogntion
+(shared task). 2013.
+this package includes two corpora:
+
+essays.csv
+ corpus for Personality Recognition from Text:
+ includes authors, raw text and gold standard labels 
+ (classes only).
+ Texts has been originally collected by James Pennebaker,
+ labels are derived by z-scores computed by François Mairesse
+ and converted from scores to nominal scales by Fabio Celli.
+
+mypersonality.csv
+ corpus for Personality Recognition from Social Networks:
+ includes authors, Facebook statuses in raw text, 
+ gold standard labels (both classes and scores) and several
+ social network  measures.
+ Texts have been originally collected by David Stillwell and
+ Michal Kosinski, and anonymized by Fabio Celli.
+ Each proper name of person has been replaced with a *PROPNAME*
+ string. Famous names, such as "Chopin" and "Mozart", and 
+ locations,  such as "New York" and "Mexico", have not been
+ replaced.
+
+gold standard labels include:
+sEXT	extraversion (score)
+sNEU	neuroticism (score)
+sAGR	agreableness (score)
+sCON	conscientiousness (score)
+sOPN	openness (score)
+
+cEXT	extraversion (label: y=extravert, n=shy)
+cNEU	neuroticism (label: y=neurotic, n=secure)
+cAGR	agreableness (label: y=friendly, n=uncooperative)
+cCON	conscientiousness (label: y=precise, n=careless)
+cOPN	openness (label: y=insightful, n=unimaginative)
+
+
+===SHARED TASK GUIDELINES===
+
+Resources.
+Please run the experiments for the shared task using at least one 
+of the two datasets provided by the workshop organizers. You can add 
+annotation levels to the data using any type of external resource.
+
+Data Splitting.
+Datasets are not divided into development, training and
+test set. You are free to split the training and test sets
+as you wish, although we suggest to use Weka 
+(http://www.cs.waikato.ac.nz/ml/weka/)
+with 66% training and 33% test settings.
+
+Evaluation.
+We provide data with 2 kind of personality labels: scores and classes.
+We suggest to use Precision, Recall and F1-measure to evaluate predictions
+on classes, and Mean Absolute Error to evaluate predictions on
+personality scores.
+
+Baselines.
+The Essays corpus has been used by Mairesse et Al 2007. You can refer to:
+ François Mairesse, Marilyn Walker, Matthias Mehl and Roger Moore. 2007.
+ Using Linguistic Cues for the Automatic Recognition of Personality 
+ in Conversation and Text. 
+ Journal of Artificial Intelligence Research 30: 457-500.
+ (http://people.csail.mit.edu/francois/research/)
+No baseline is provided for the myPersonality Facebook corpus.
+We suggest to compute random or majority baselines if needed.
+
+
+===TERMS OF USE===
+
+Confidentiality.
+You cannot send the database to any other party, nor disclose to anyone else
+the information contained within it as well as its structure.
+
+Anonymisation.
+We have anonymised the dataset. You cannot attempt to reverse this by linking 
+individual records with specific users. This means that you also should 
+not link individual data with any other information about an individual that 
+you may have. This implies that you cannot attempt to contact any 
+individuals either.
+
+Non-Commerical License.
+We grant you a non-commercial license to use the data. You can only use it 
+for academic research that does not earn revenue, and your research also 
+cannot be in collaboration with any commercial entities.
+
+Recoverability.
+The license to use and store our data is recoverable, which means that 
+myPersonality may ask you to cease use of it and to delete it from any storage 
+you have at our sole discretion.
+
+

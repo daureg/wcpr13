@@ -1,0 +1,1 @@
+cat rawessays.csv | ./calculate_WDM_onefile.perl -dictionary essayvocabulary.lst > testdata1.dat
