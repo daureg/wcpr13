@@ -12,12 +12,12 @@ features = irt;
 load('label.mat')
 label = label(:,trait);
 if strcmpi(method, 'bayes')
-	lenghty = and(wm(:,1)>000,wm(:,2)>00,wm(:,3)>0);
+    lenghty = and(wm(:,1)>000,wm(:,2)>00,wm(:,3)>0);
     %lenghty = 1:N;
-	sum(lenghty)
-	X = full(wm(lenghty, features)>0);
+    sum(lenghty)
+    X = full(wm(lenghty, features)>0);
 else
-	X = zscore(wm(:,features));
+    X = zscore(wm(:,features));
 end
 z=randperm(size(X,1));
 pred = {};
@@ -51,13 +51,13 @@ for lambda = lspace
         end
         options=sprintf('-h 0 -m 1024 -g %.9f -c %.4f -q', gamma, cost)
     end
-    
+
     for j = 1:nfold
         %j
         [tr, vl] = get_cross_set(z, nfold, j);
         numel(tr);
         numel(vl);
-		gold_label = label(vl);
+        gold_label = label(vl);
         tic;
         switch method
             case 'svm'
@@ -74,12 +74,12 @@ for lambda = lspace
             case 'random'
                 [pred{j}, proba{j}] = predict_random(numel(gold_label), label(tr), true);
                 ttime = toc;
-			case 'bayes'
+            case 'bayes'
                 mlnb = NaiveBayes.fit(X(tr,:), label(tr),'dist','mn');
-				[proba{j}, pred{j}] = mlnb.posterior(X(vl,:));
-				%% [discrim] = train_bayes_again(label(tr), X(tr,:));
-				%% [pred{j}, proba{j}] = predict_bayes_again(X(vl,:), discrim);
-				ttime = toc;
+                [proba{j}, pred{j}] = mlnb.posterior(X(vl,:));
+                %% [discrim] = train_bayes_again(label(tr), X(tr,:));
+                %% [pred{j}, proba{j}] = predict_bayes_again(X(vl,:), discrim);
+                ttime = toc;
             case 'knn'
                 mdl = ClassificationKNN.fit(X(tr,:),label(tr),'Distance', 'jaccard', 'NumNeighbors', 5);
                 % not a probabistic method, the proba is the number of k
