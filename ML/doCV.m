@@ -1,4 +1,4 @@
-function [C,theta]=doCV(nfold, method, trait)
+function [C,theta]=doCV(nfold, method, distance, trait)
 load('wm.mat');
 %load('sparse_orig_wm.mat');
 [N, M] = size(wm);
@@ -81,7 +81,7 @@ for lambda = lspace
                 %% [pred{j}, proba{j}] = predict_bayes_again(X(vl,:), discrim);
                 ttime = toc;
             case 'knn'
-                mdl = ClassificationKNN.fit(X(tr,:),label(tr),'Distance', 'jaccard', 'NumNeighbors', 5);
+                mdl = ClassificationKNN.fit(X(tr,:),label(tr),'Distance', distance, 'NumNeighbors', 5);
                 % not a probabistic method, the proba is the number of k
                 % nearest neighbors that have the selected class.
                 [pred{j},proba{j}] = predict(mdl,X(vl,:));
@@ -104,5 +104,6 @@ for lambda = lspace
 end
 tmp
 mean(tmp)
+distance
 result;
 end
