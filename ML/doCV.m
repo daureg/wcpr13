@@ -1,16 +1,19 @@
 function [C,theta]=doCV(nfold, method, trait)
 load('wm.mat');
+%load('sparse_orig_wm.mat');
 [N, M] = size(wm);
 nz=sum(full(wm)>0);
 % words used in more than 5% of texts but less than 75%
-irt=and(nz>=.001*N, nz<=.95*N);
+irt=and(nz>=.1*N, nz<=.75*N);
 sum(irt)
 features = irt;
-features=[8:size(wm,2)];
+%features=[8:M];
+%features=full(sum(wm,1)~=0);
 load('label.mat')
 label = label(:,trait);
 if strcmpi(method, 'bayes')
 	lenghty = and(wm(:,1)>000,wm(:,2)>00,wm(:,3)>0);
+    %lenghty = 1:N;
 	sum(lenghty)
 	X = full(wm(lenghty, features)>0);
 else
@@ -72,14 +75,14 @@ for lambda = lspace
                 [pred{j}, proba{j}] = predict_random(numel(gold_label), label(tr), true);
                 ttime = toc;
 			case 'bayes'
-				mlnb = NaiveBayes(X(tr,:), label(tr));
-				[proba{j}, pred{j}] = max(mlnb.posterior(X(vl,:), [], 2);
+                mlnb = NaiveBayes.fit(X(tr,:), label(tr),'dist','mn');
+				[proba{j}, pred{j}] = mlnb.posterior(X(vl,:));
 				%% [discrim] = train_bayes_again(label(tr), X(tr,:));
 				%% [pred{j}, proba{j}] = predict_bayes_again(X(vl,:), discrim);
 				ttime = toc;
         end
         [a, p, r, f] = evaluate(pred{j}, gold_label);
-        C = confusionmat(gold_label, double(pred{j}));
+        C = confusionmat(gold_label, pred{j});
         fp = C(1,2)/sum(C(1,:));
         tmp(j,:)=[a, p, r, f, fp, ttime];
     end
