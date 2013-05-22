@@ -2,4 +2,3 @@ preprocess: stem/lemma & POS
 reduction: SVD
 classif: Bayes, kNN
 report: add template & read paper for intro
-git: clone on kosh
