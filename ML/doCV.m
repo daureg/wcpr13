@@ -80,6 +80,12 @@ for lambda = lspace
 				%% [discrim] = train_bayes_again(label(tr), X(tr,:));
 				%% [pred{j}, proba{j}] = predict_bayes_again(X(vl,:), discrim);
 				ttime = toc;
+            case 'knn'
+                mdl = ClassificationKNN.fit(X(tr,:),label(tr),'Distance', 'jaccard', 'NumNeighbors', 5);
+                % not a probabistic method, the proba is the number of k
+                % nearest neighbors that have the selected class.
+                [pred{j},proba{j}] = predict(mdl,X(vl,:));
+                ttime = toc;
         end
         [a, p, r, f] = evaluate(pred{j}, gold_label);
         C = confusionmat(gold_label, pred{j});
