@@ -1,0 +1,56 @@
+\documentclass[a4paper,svgnames,final,titlepage,12pt,parskip=half+]{scrartcl}
+\usepackage{ifxetex}
+\ifxetex
+% article, report, book, lettre, scrartcl, scrreprt, scrbook, scrlettr
+\usepackage[nochapters,pdfspacing]{classicthesis}
+\usepackage{arsclassica}
+
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\XeTeXdefaultencoding utf-8
+\usepackage{xltxtra}
+\setmainfont{Linux Libertine O}
+\setmonofont[Scale=.9]{Inconsolata-g}
+\fontspec[Numbers={OldStyle},Ligatures=TeX]{Linux Libertine O}
+\else
+%% \documentclass[svgnames,a4paper,12pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[svgnames]{xcolor}
+\usepackage[unicode=true]{hyperref}
+\hypersetup{breaklinks=true,
+	colorlinks=true,
+	urlcolor=SlateBlue,
+	citecolor=Green,
+	linkcolor=DodgerBlue,
+pdfborder={0 0 0}}
+\fi
+
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{microtype}
+%% \usepackage[top=2cm, bottom=1.9cm, left=2cm, right=2cm]{geometry}
+\usepackage{numprint}
+\usepackage{xspace}
+\usepackage{varioref}
+%% \usepackage{pgfplots}
+%% \pgfplotsset{compat=1.8,width=.7\textwidth}
+\usepackage{csquotes}
+\usepackage[style=ieee,sorting=nyt,backend=biber,defernumbers=true]{biblatex}
+\addbibresource{small.bib}
+
+
+\title{T-61.5020 Statistical Natural Language:\\ Course assignment}
+\subtitle{Classification of text according to the personality of author using
+Naïve Bayes}
+\author{Géraud Le Falher\xspace—~\numprint{336978}, {\small
+\href{geraud.lefalher@aalto.fi}{\textcolor{DodgerBlue}{\textsc{geraud.lefalher@aalto.fi}}}}}
+
+\begin{document}
+\maketitle
+\input{content}
+\printbibliography
+\end{document}

@@ -65,9 +65,11 @@ slprj/
 *.alg
 *.aux
 *.bbl
+*.bcf
 *.blg
 *.dvi
 *.fdb_latexmk
+*.fls
 *.glg
 *.glo
 *.gls
@@ -86,9 +88,11 @@ slprj/
 *.out
 *.pdfsync
 *.ps
+*.run.xml
 *.snm
 *.synctex.gz
+*.tdo
 *.toc
 *.vrb
 *.xdy
-*.tdo
+report/*.pdf
