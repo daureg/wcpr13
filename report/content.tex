@@ -12,11 +12,11 @@ How essays.csv was turn into a feature matrix. May include
 \item encoding issue
 \item word counting
 \item number handling
-\item stemming/lemmatization using \autocite{bird2009nltk} (I also consider
+\item stemming/lemmatization. Try nltk.WordNet (very slow, only transform plural noun to singular form), Porter and Snowball algorithm (highly subjective but too aggressive was -> wa). So I choose hunspell, which has also issues (discard punctuation and different segmentation mid-day -> mid, day) and some bad alternative (thing -> thing or the+ING). For the latter, POS could have helped but because of the other problem, the two version of the text were no more aligned. But still good because it change moved to move for instance. Still fail for woke to wake
+\item textual marker (case, punctuation, length)
+\item POS tagging using \autocite{bird2009nltk} (I also consider
 	using a CRF implementation \autocite[for instance][]{CRFsuite} but it
 	require too much training for my goal).
-\item textual marker (case, punctuation, length)
-\item POS tagging
 \item Entity recognition
 \end{itemize}
 
