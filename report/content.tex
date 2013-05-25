@@ -12,6 +12,26 @@ How essays.csv was turn into a feature matrix. May include
 \item encoding issue
 \item word counting
 \item number handling
+	\begin{table}[hb]
+		\centering
+	\begin{tabular}{cccccccccccc}
+		\toprule
+		& zero & one & two & three & four & five & six & seven & eight & nine &
+		\emph{total} \tabularnewline
+		\midrule
+		raw & \numprint{18} & \numprint{4816} & \numprint{1193} &
+		\numprint{518} & \numprint{287} & \numprint{276} & \numprint{126} &
+		\numprint{95} & \numprint{64} & \numprint{60} & \numprint{7453}
+		\tabularnewline
+		converted & \numprint{134} & \numprint{5090} & \numprint{1814} &
+		\numprint{1069} & \numprint{737} & \numprint{748} & \numprint{375} &
+		\numprint{297} & \numprint{309} & \numprint{262} & \numprint{10835}
+		\tabularnewline
+		\bottomrule
+	\end{tabular}
+	\caption{Counts of the ten words representing digit. The first line referred to the raw data, while in the second, single digit number have been converted to the corresponding word. Although it is probably irrelevant, it is amusing to note most people write numbers with digit and not letters, especially if the number is not 1 (and to some extent, 2 and 3).}
+	\label{tab:num}
+\end{table}
 \item stemming/lemmatization. Try nltk.WordNet (very slow, only transform plural noun to singular form), Porter and Snowball algorithm (highly subjective but too aggressive was -> wa). So I choose hunspell, which has also issues (discard punctuation and different segmentation mid-day -> mid, day) and some bad alternative (thing -> thing or the+ING). For the latter, POS could have helped but because of the other problem, the two version of the text were no more aligned. But still good because it change moved to move for instance. Still fail for woke to wake
 \item textual marker (case, punctuation, length)
 \item POS tagging using \autocite{bird2009nltk} (I also consider
