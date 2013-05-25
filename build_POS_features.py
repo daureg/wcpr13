@@ -5,12 +5,18 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.tag.simplify import simplify_wsj_tag
 from collections import defaultdict
 from scipy.io import savemat
+from multiprocessing import Pool, cpu_count
 import numpy as np
-with open('small.corpus') as f:
-    essays = f.readlines()[0:2]
+import sys
+
+with open(sys.argv[1]) as f:
+    essays = [i.strip() for i in f.readlines()]
 
 
-def get_pos_dict(text):
+
+def get_pos_dict(z):
+    print(z[0])
+    text = z[1]
     pos = []
     posd = defaultdict(int)
     # seems slower, despite the promising name
@@ -33,7 +39,8 @@ if __name__ == '__main__':
     #                  setup="from __main__ import get_pos_dict, essays")
     # print(t.repeat(number=nrun))
     grammar_tag = set([])
-    all_pos_tag = map(get_pos_dict, essays)
+    p = Pool(cpu_count())
+    all_pos_tag = p.map(get_pos_dict, enumerate(essays))
     for d in all_pos_tag:
         grammar_tag |= set(d.keys())
 
@@ -42,7 +49,6 @@ if __name__ == '__main__':
         f.write('\n'.join(grammar_tag))
 
     N = len(essays)
-    N = 2
     POSmat = np.zeros((N, len(grammar_tag)), np.int16)
     for j, tag in enumerate(grammar_tag):
         for i, d in enumerate(all_pos_tag):

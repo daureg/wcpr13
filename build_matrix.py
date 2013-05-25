@@ -11,7 +11,6 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 from scipy.io import savemat
 from string import punctuation, ascii_uppercase
 import numpy as np
-import sys
 
 voca = {}
 with open('dict') as f:
