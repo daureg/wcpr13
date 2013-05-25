@@ -1,7 +1,5 @@
 #! /usr/bin/python2
 # vim: set fileencoding=utf-8
-with open('hun') as f:
-    morphs = [l.strip() for l in f.readlines()]
 
 
 def morph_split(line):
@@ -25,19 +23,30 @@ def choose_stem(stems, infos):
             return potential
     return stems[0]
 
-morph_index = 0
-while morph_index < len(morphs):
-    first_word, first_stem, info = morph_split(morphs[morph_index])
-    possible_stem = [first_stem]
-    infos = [info]
-    may_be_other_stem = True
-    while may_be_other_stem and morph_index < len(morphs)-1:
-        next_word, next_stem, info = morph_split(morphs[morph_index+1])
-        if next_word == first_word and next_stem != first_stem:
-            possible_stem.append(next_stem)
-            infos.append(info)
-            morph_index += 1
-        else:
-            may_be_other_stem = False
-    print(choose_stem(possible_stem, infos).lower())
-    morph_index += 1
+
+def words_to_stems(stem_filename):
+    with open(stem_filename) as f:
+        morphs = [l.strip() for l in f.readlines()]
+
+    final_stems = []
+    morph_index = 0
+    while morph_index < len(morphs):
+        first_word, first_stem, info = morph_split(morphs[morph_index])
+        possible_stem = [first_stem]
+        infos = [info]
+        may_be_other_stem = True
+        while may_be_other_stem and morph_index < len(morphs)-1:
+            next_word, next_stem, info = morph_split(morphs[morph_index+1])
+            if next_word == first_word and next_stem != first_stem:
+                possible_stem.append(next_stem)
+                infos.append(info)
+                morph_index += 1
+            else:
+                may_be_other_stem = False
+        final_stems.append(choose_stem(possible_stem, infos).lower())
+        morph_index += 1
+
+    return final_stems
+
+if __name__ == '__main__':
+    (words_to_stems('morph2'))
