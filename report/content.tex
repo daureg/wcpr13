@@ -22,34 +22,55 @@ previous works\cite{mairesse2007perso}, the method that will be used.
 Before doing any Classification, we need to perform several operations to transform the raw data contained in the file \texttt{essays.csv} into a document-term matrix, which a more suitable representation.
 \begin{itemize}
 	\item First, we need to separate for each line the text itself from the five labels, which cause no difficulties but is mentioned here for the sake of completeness. Another \enquote{easy but annoying} issue was that some characters generate encoding error (which was solved not elegantly by removing them, since there was only a few of them).
-	\item I then wondered what to do about number not written in full. I changed single digit into equivalent word (as shown in \vref{tab:num}) and replace all the other by a single unique token (\texttt{xnumx}).
-	\begin{table}[hb]
-		\centering
-	\begin{tabular}{cccccccccccc}
-		\toprule
-		& zero & one & two & three & four & five & six & seven & eight & nine &
-		\emph{total} \tabularnewline
-		\midrule
-		raw & \numprint{18} & \numprint{4816} & \numprint{1193} &
-		\numprint{518} & \numprint{287} & \numprint{276} & \numprint{126} &
-		\numprint{95} & \numprint{64} & \numprint{60} & \numprint{7453}
-		\tabularnewline
-		converted & \numprint{134} & \numprint{5090} & \numprint{1814} &
-		\numprint{1069} & \numprint{737} & \numprint{748} & \numprint{375} &
-		\numprint{297} & \numprint{309} & \numprint{262} & \numprint{10835}
-		\tabularnewline
-		\bottomrule
-	\end{tabular}
-	\caption{Counts of the ten words representing digit. The first line referred to the raw data, while in the second, single digit number have been converted to the corresponding word. Although it is probably irrelevant, it is amusing to note most people write numbers with digit and not letters, especially if the number is not 1 (and to some extent, 2 and 3).}
-	\label{tab:num}
-\end{table}
-\item To reduce the sparsity of data, I decide to perform a stemming step, even though is was not such a severe problem because the text are all in American English, which is a rather analytical language. Because I used the python language, I first looked at vavious algorithm offered by the NLTK library\autocite{bird2009nltk}. \texttt{nltk.WordNet} look (very slow, only transform plural noun to singular form), Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithm (highly subjective but too aggressive was -> wa). So I choose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which has also issues (discard punctuation and different segmentation mid-day -> mid, day) and some bad alternative (thing -> thing or the+ING). For the latter, POS could have helped but because of the other problem, the two version of the text were no more aligned. But still good because it change moved to move for instance. Still fail for woke to wake
-\item textual marker (case, punctuation, length)
+	\item I then wondered what to do about numbers not written in full. I changed single digit into equivalent word (as shown in Table \vref{tab:num}) and replace all the other by a single unique token (\texttt{xnumx}).
+		\begin{table}[hb]
+			\centering
+			\begin{tabular}{cccccccccccc}
+				\toprule
+				& zero & one & two & three & four & five & six & seven & eight & nine &
+				\emph{total} \tabularnewline
+				\midrule
+				raw & \numprint{18} & \numprint{4816} & \numprint{1193} &
+				\numprint{518} & \numprint{287} & \numprint{276} & \numprint{126} &
+				\numprint{95} & \numprint{64} & \numprint{60} & \numprint{7453}
+				\tabularnewline
+				converted & \numprint{134} & \numprint{5090} & \numprint{1814} &
+				\numprint{1069} & \numprint{737} & \numprint{748} & \numprint{375} &
+				\numprint{297} & \numprint{309} & \numprint{262} & \numprint{10835}
+				\tabularnewline
+				\bottomrule
+			\end{tabular}
+			\caption{Counts of the ten words representing digit. The first line referred to the raw data, while in the second, single digit number have been converted to the corresponding word. Although it is probably irrelevant, it is amusing to note most people write numbers with digit and not letters, especially if the number is not 1 (and to some extent, 2 and 3).}
+			\label{tab:num}
+		\end{table}
+
+\item To reduce the sparsity of data, I decide to perform a stemming step, even though is was not such a severe problem because the text are all in American English, which is a rather analytical language. Because I used the python language, I first looked at various algorithms offered by the NLTK library\autocite{bird2009nltk}. \texttt{nltk.WordNet} is based on the morphy function\footnote{\href{http://wordnet.princeton.edu/man/morphy.7WN.html}{http://wordnet.princeton.edu/man/morphy.7WN.html}} that apply some suffix-suppresion rules before looking up in a database of base forms. In my case, it was rather slow and for some reasons, it only remove plural ending (like \enquote{\emph{s}}) but do nothing about past tense verbs for instance. NLTK also implements Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithms but although it is highly subjective, there were a bit too \enquote{aggressive}, ,for instance transforming \emph{was} to \emph{wa}.  Therefore I finally choose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which nonetheless comes with its own issues such as totally discarding punctuation, segmenting differently (for instance, \emph{mid-day} to \emph{mid} and \emph{day}) and generating some irrelevant alternatives (\emph{thing} is transformed into \emph{thing} but also into \emph{the+ING}) or missing one (\emph{woke} was not changed to \emph{wake}). For the last two problems, POS tagging could have helped but because of the others issues, the two version of the text were no more aligned.
+
+\item I also collect some general characteristics of the text, namely: the number of sentences, words and characters; the proportion of punctuation marks and capitalized letters; and the number of words per sentences.
 \item POS tagging using \autocite{bird2009nltk} (I also consider
 	using a CRF implementation \autocite[for instance][]{CRFsuite} but it
-	require too much training for my goal).
-\item Entity recognition
-\item word counting
+	require too much training for my goal). 23 minutes, simplified WSJ tag
+\item One thing that I did not find time to look for is Named Entity Recognition. Yet it would have been interesting to see if this kind of information can provide some insight about personality. For instance, we may imagine that someone citing a lot of different places is more likely to be classified as opened to experience.
+\item The last step was to go through all the texts to find all the distinct token along their count. A sample of that is shown in Table \vref{tab:dict}. Using this list, we can process every text individually to compute its feature vector that consist of:
+	\begin{itemize}
+		\item the five class label
+		\item the six general characteristics
+		\item the count of each of the 27 part of speech
+		\item the count of each of the \numprint{29535} token
+	\end{itemize}
+		\begin{table}[hb]
+			\centering
+			\begin{tabular}{ccccccccccc}
+				\toprule
+				i & to & the & and & that & my & a & it & is & of & t \tabularnewline
+				\midrule
+				\numprint{123196} & \numprint{56649} & \numprint{40482} & \numprint{38078} & \numprint{31492} & \numprint{29831} & \numprint{29168} & \numprint{27563} & \numprint{25302} & \numprint{23179} & \numprint{20672}
+				\tabularnewline
+				\bottomrule
+			\end{tabular}
+			\caption{The first 11 of the \numprint{29535} unique tokens. As expected, most of them are stop words, expect for \emph{I}, which is explained by the nature of a stream of consciousness essays and \emph{t} which comes from negation's contraction, as the texts are written rather informally.}
+			\label{tab:dict}
+		\end{table}
 \end{itemize}
 
 \section{Classification}
