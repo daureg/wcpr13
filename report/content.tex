@@ -17,12 +17,12 @@ relevant Wikipedia page}.}, presented in \autocite{mairesse2007perso} as follow:
 
 In this project, we will consider that each of these dimensions is binary (whereas one may argue that no individual can be perfectly extroverted or introverted) and we will try to classify people in each dimension based on their writing. More specifically, some student were asked to produce a so called \emph{stream of consciousness} essay, meaning that they wrote their current thoughts freely for twenty minutes. \Textcite{pennebaker1999corpus} collected 2468 such essays which account for about 1.6 millions words\footnote{It is surprisingly difficult to come with a precise figure because \emph{word} is loosely defined.}. Furthermore, they labelled this dataset by assessing the personality of each author with a standard questionnaire.
 
-The key idea is that the way we express ourselves (for instance by writing) reflect our personality. In Bayesian terms, we would say that the text is an observed variable which is conditioned by a hidden one, the personality. Naturally, 
+Psychology has show that the way we express ourselves (for instance by writing) reflect our personality. A summary of these findings in the case of extraversion is given in\autocite[][Table 1]{mairesse2007perso}. For instance, introverts tend to use a more diverse lexicon, more elaborated constructions but less positive emotion words. In Bayesian terms, we would say that the text is an observed variable which is conditioned by a hidden one, the personality. It is then quite natural to use a statistical natural language processing approach, first by extracting relevant features (described in section \vref{sec:preprop}) and then training different kind of classifiers like \gls{mnnb}, \gls{knn} and \gls{svm} (as explained in section \vref{sec:class}).
 
-Describe the data, the problem and related one (sentiment analysis), the
-previous works\cite{mairesse2007perso}, the method that will be used.
+In itself, this problem is not of much interest, first because it is not a very convenient for the people being assessed to spend twenty minutes writing a text and also because this information alone is of little use. Yet it is interesting as a sub routine for a higher level task like matching users in a dating site or forming team of workers. It may also affect the choice of a more refined model for further mining of an individual's texts. Finally, it can be thought as a generalization of sentiment analysis, where instead of deciding between rather straightforward and factual classes (positive or negative), more complex facets of expression are analyzed.
 
 \section{Pre processing}
+\label{sec:preprop}
 Before doing any Classification, I perform several operations to transform the raw data contained in the file \texttt{essays.csv} into a document-term matrix, which is a more suitable representation.
 \begin{itemize}
 	\item First, I separate in each line the text itself from the five labels, which pose no difficulties but is mentioned here for the sake of completeness. Another \enquote{easy but annoying} issue was that some characters generate encoding error (which was solved not elegantly by removing them, since there was only a few of them).
@@ -51,9 +51,24 @@ Before doing any Classification, I perform several operations to transform the r
 	 \item To reduce the sparsity of data, I decide to stem all the words, even though is was not such a severe problem because the text are all in American English, which is a rather analytical language. Because I used the python language, I first looked at various algorithms offered by the \gls{nltk} library\autocite{bird2009nltk}. \texttt{nltk.WordNet} is based on the morphy function\footnote{\href{http://wordnet.princeton.edu/man/morphy.7WN.html}{http://wordnet.princeton.edu/man/morphy.7WN.html}} that apply some suffix-suppresion rules before looking up in a database of base forms. In my case, it was rather slow and for some reasons, it only remove plural ending (like \emph{s}) but did nothing about past tense verbs. NLTK also implements Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithms but although it is highly subjective, I found them a bit too \enquote{aggressive}, for instance transforming \emph{was} to \emph{wa}.  Therefore I finally choose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which nonetheless comes with its own issues such as totally discarding punctuation, segmenting differently (for instance, \emph{mid-day} to \emph{mid} and \emph{day}) and generating some irrelevant alternatives (\emph{thing} is transformed into \emph{thing} but also into \emph{the+ING}) or missing one (\emph{woke} was not changed to \emph{wake}). For the last two problems, \gls{pos} tagging could have helped but because of the others issues, the two version of the text were no more aligned.
 
 \item I also collect some general characteristics of the text, namely: the number of sentences, words and characters; the proportion of punctuation marks and capitalized letters; and the number of words per sentences.
-\item POS tagging using \autocite{bird2009nltk} (I also consider
-    using a \gls{crf} implementation \autocite[for instance][]{CRFsuite} but it
-	require too much training for my goal). 23 minutes, simplified WSJ tag
+\item The use of \gls{pos} can be indication of the personnality. For instance, introverts will use more nouns while extroverts favor verbs. Thus I tagged every word with the default tagger of \gls{nltk} (based on a maximum entropy model) (I also consider using a \gls{crf} implementation \autocite[for instance][]{CRFsuite} but it require too much training for my goal). It turns out it was the most time consuming operation (more than 23 minutes on my laptop). After that, I count in every text how many times each of the 27 tags appears. A sample is shown in Table \vref{tab:pos}.
+    \begin{table}[hb]
+	   \centering
+	   \begin{tabular}{ccccccccc}
+		  \toprule
+		  & PRO & N & V & P & ADV & . & DET & ADJ \tabularnewline
+		  \midrule
+		  total & \numprint{263748} & \numprint{260182} & \numprint{255939} & \numprint{169896} & \numprint{154300} & \numprint{121431} & \numprint{114085} & \numprint{90769}
+		  \tabularnewline
+		  text 1515 & 189 & 85 & 112 & 135 & 78 & 149 & 194 & 87\tabularnewline
+		  text 1789 & 108 & 131 & 57 & 86 & 130 & 31 & 69 & 81\tabularnewline
+		  text 1804 & 38 & 21 & 68 & 35 & 58 & 57 & 24 & 44\tabularnewline
+		  \bottomrule
+	   \end{tabular}
+	   \caption{Repartition of the eight most represented tag in total and for
+	   three random texts.}
+	   \label{tab:pos}
+    \end{table}
 \item One thing that I have not had time to consider is Named Entity Recognition. Yet it would have been interesting to see if this kind of information can provide some insight about personality. For instance, we may imagine that someone citing a lot of different places is more likely to be classified as opened to experience.
 \item The last step was to go through all the texts to find all the distinct token along their count. A sample of that is shown in Table \vref{tab:dict}. Using this list, I process every text individually to compute its feature vector, that consist of:
 	\begin{itemize}
@@ -78,10 +93,27 @@ Before doing any Classification, I perform several operations to transform the r
 \end{itemize}
 
 \section{Classification}
-Dimensionality reduction: \gls{svd}, LDA, \gls{ica}
+\label{sec:class}
+Another way to alleviate the sparsity problem is to resort to general methods of dimensionality reduction such as \gls{som} or \gls{ica}. Due to lack of time, I only experiment with \gls{lsi}, which consist of computing a \gls{svd} of the document matrix $W$ and keeping only the $r$ largest values.
 
-Method: MN NB, RBF C-\gls{svm} (maybe with text kernel?), cosine \gls{knn}
+\paragraph{\glsentrydesc{mnnb}}
+
+A simple model which assume that all features are mutually independent and only depend of the class, i.e. $P(c\;|\;w) \propto P(c)\prod_iP(w_i\;|\;c)$.  Because I use a bag-of-word model, $P(w_i\;|\;c)$ are supposed to follow a multinomial distribution whose parameters are simply the count in the data, according to the maximum likelihood estimation. I use the off-the-shelf implementation of MATLAB\footnote{\href{http://www.mathworks.se/help/stats/naivebayes.fit.html}{http://www.mathworks.se/help/stats/naivebayes.fit.html}}, whose interface is very simple.
+
+\paragraph{\glsentrydesc{svm}}
+
+A maximum margin separator that operates in a high dimensional space derived from the original one by the use of kernel. The two classes are linearly separated by a hyperplane which from the so called \enquote{support vector}, instances selected by the optimization procedure. The kernel is a function $K(x,y)$ which measure the similarity between two instances $x$ and $y$: the smaller it is, the more related they are. The easiest choice was to use a kernel based on euclidean distance (namely, a radial basis function $K(x,y)=e^{-\frac{\vnorm{x-y}^2}{\sigma^2}}$) but it would have been more interesting to implement a common subsequence kernel. I use a C++ implementation written by \textcite{Chang2001libsvm} with a MATLAB interface.
+
+\paragraph{$k$ Nearest Neighbors}
+MATLAB implementation\footnote{\href{http://www.mathworks.se/help/stats/classificationknn.fit.html}{http://www.mathworks.se/help/stats/classificationknn.fit.html}}, same distance issue, compared several of them.
+
+balanced so accuracy is a sufficient measure to assess performance and
+distinguish from random guessing. 5-fold cross validation.
+
 
 Result tables
+3 methods, 5 classif with the base matrix
+choose the better of five and try some variation: svd and td-idf (short
+explanation)
 
 \section{Conclusion}

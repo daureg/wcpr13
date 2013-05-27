@@ -2,9 +2,8 @@
 \usepackage{ifxetex}
 \ifxetex
 % article, report, book, lettre, scrartcl, scrreprt, scrbook, scrlettr
-\usepackage[nochapters,pdfspacing]{classicthesis}
-\usepackage{arsclassica}
-
+% \usepackage[nochapters,pdfspacing]{classicthesis}
+% \usepackage{arsclassica}
 \usepackage{polyglossia}
 \setmainlanguage{english}
 \XeTeXdefaultencoding utf-8
@@ -30,7 +29,8 @@ pdfborder={0 0 0}}
 
 \usepackage{graphicx}
 \usepackage{subfig}
-\usepackage{amsmath}
+% \usepackage{amsmath}
+\newcommand{\vnorm}[1]{\left|\left|#1\right|\right|}
 \usepackage{booktabs}
 \usepackage{microtype}
 %% \usepackage[top=2cm, bottom=1.9cm, left=2cm, right=2cm]{geometry}
@@ -44,7 +44,7 @@ pdfborder={0 0 0}}
 \addbibresource{small.bib}
 \usepackage{pifont}
 \renewcommand{\labelitemi}{\ding{167}}
-\usepackage[xindy]{glossaries}
+\usepackage[smallcaps,xindy,style=long]{glossaries}
 \makeglossaries
 \input{glossaire}
 
@@ -60,5 +60,5 @@ pdfborder={0 0 0}}
 \vspace{8\baselineskip}
 \input{content}
 \printbibliography
-\printglossary
+\printglossary[title={List of Acronyms}]
 \end{document}
