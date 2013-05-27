@@ -1,4 +1,4 @@
-\documentclass[a4paper,svgnames,final,titlepage,12pt,parskip=half+]{scrartcl}
+\documentclass[a4paper,svgnames,final,notitlepage,12pt,parskip=half+]{scrartcl}
 \usepackage{ifxetex}
 \ifxetex
 % article, report, book, lettre, scrartcl, scrreprt, scrbook, scrlettr
@@ -22,9 +22,9 @@
 \usepackage[unicode=true]{hyperref}
 \hypersetup{breaklinks=true,
 	colorlinks=true,
-	urlcolor=SlateBlue,
+	urlcolor=MediumBlue,
 	citecolor=Green,
-	linkcolor=DodgerBlue,
+	linkcolor=Indigo,
 pdfborder={0 0 0}}
 \fi
 
@@ -34,7 +34,7 @@ pdfborder={0 0 0}}
 \usepackage{booktabs}
 \usepackage{microtype}
 %% \usepackage[top=2cm, bottom=1.9cm, left=2cm, right=2cm]{geometry}
-\usepackage{numprint}
+\usepackage[autolanguage]{numprint}
 \usepackage{xspace}
 \usepackage{varioref}
 %% \usepackage{pgfplots}
@@ -42,16 +42,23 @@ pdfborder={0 0 0}}
 \usepackage{csquotes}
 \usepackage[style=ieee,sorting=nyt,backend=biber,defernumbers=true]{biblatex}
 \addbibresource{small.bib}
+\usepackage{pifont}
+\renewcommand{\labelitemi}{\ding{167}}
+\usepackage[xindy]{glossaries}
+\makeglossaries
+\input{glossaire}
 
 
 \title{T-61.5020 Statistical Natural Language:\\ Course assignment}
-\subtitle{Classification of text according to the personality of author using
-Naïve Bayes}
-\author{Géraud Le Falher\xspace—~\numprint{336978}, {\small
-\href{geraud.lefalher@aalto.fi}{\textcolor{DodgerBlue}{\textsc{geraud.lefalher@aalto.fi}}}}}
+\subtitle{Comparing methods to classify texts according to the personality of
+	its author}
+\author{Géraud Le Falher—336 978, {\small
+\href{geraud.lefalher@aalto.fi}{\textcolor{Indigo}{\textsc{geraud.lefalher@aalto.fi}}}}}
 
 \begin{document}
 \maketitle
+\vspace{8\baselineskip}
 \input{content}
 \printbibliography
+\printglossary
 \end{document}

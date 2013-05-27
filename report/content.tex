@@ -1,9 +1,10 @@
 \begin{abstract}
 	Summarize problem, method and result in 150 words.
 \end{abstract}
+\newpage
 
 \section{Introduction}
-Personality is often described in terms of five \emph{traits}\footnote{Although other are listed on
+Human personality can be described in terms of five \emph{traits}\footnote{Although others are listed on
 \href{http://en.wikipedia.org/wiki/Trait\_theory\#List\_of\_personality\_traits}{the
 relevant Wikipedia page}.}, presented in \autocite{mairesse2007perso} as follow:
 \begin{itemize}
@@ -14,14 +15,17 @@ relevant Wikipedia page}.}, presented in \autocite{mairesse2007perso} as follow:
 \item Openness to experience (intellectual, insightful vs. shallow, unimaginative)
 \end{itemize}
 
-In this project, we will consider that each of these dimensions is binary (whereas one may argue that no individual can be perfectly extroverted or introverted) and we will try to classify people in each dimension based on their writing. More specifically, some student were asked to produce a so called \emph{stream of consciousness} essay, meaning that they wrote their current thoughts freely for twenty minutes. \Textcite{pennebaker1999corpus} collected 2468 such essays which account for about 1.6 millions words\footnote{It is surprisingly difficult to come with a precise figure because of the ambiguity of the definition of a word.}. Furthermore, this dataset is labelled because they assessed the personality of each author with a standard questionnaire. The key idea is that the way we express ourselves (for instance by writing) reflect our personality. In Bayesian terms, we would say that the text is an observed variable which is conditioned by a hidden one, the personality. Naturally, 
+In this project, we will consider that each of these dimensions is binary (whereas one may argue that no individual can be perfectly extroverted or introverted) and we will try to classify people in each dimension based on their writing. More specifically, some student were asked to produce a so called \emph{stream of consciousness} essay, meaning that they wrote their current thoughts freely for twenty minutes. \Textcite{pennebaker1999corpus} collected 2468 such essays which account for about 1.6 millions words\footnote{It is surprisingly difficult to come with a precise figure because \emph{word} is loosely defined.}. Furthermore, they labelled this dataset by assessing the personality of each author with a standard questionnaire.
+
+The key idea is that the way we express ourselves (for instance by writing) reflect our personality. In Bayesian terms, we would say that the text is an observed variable which is conditioned by a hidden one, the personality. Naturally, 
+
 Describe the data, the problem and related one (sentiment analysis), the
 previous works\cite{mairesse2007perso}, the method that will be used.
 
 \section{Pre processing}
-Before doing any Classification, we need to perform several operations to transform the raw data contained in the file \texttt{essays.csv} into a document-term matrix, which a more suitable representation.
+Before doing any Classification, I perform several operations to transform the raw data contained in the file \texttt{essays.csv} into a document-term matrix, which is a more suitable representation.
 \begin{itemize}
-	\item First, we need to separate for each line the text itself from the five labels, which cause no difficulties but is mentioned here for the sake of completeness. Another \enquote{easy but annoying} issue was that some characters generate encoding error (which was solved not elegantly by removing them, since there was only a few of them).
+	\item First, I separate in each line the text itself from the five labels, which pose no difficulties but is mentioned here for the sake of completeness. Another \enquote{easy but annoying} issue was that some characters generate encoding error (which was solved not elegantly by removing them, since there was only a few of them).
 	\item I then wondered what to do about numbers not written in full. I changed single digit into equivalent word (as shown in Table \vref{tab:num}) and replace all the other by a single unique token (\texttt{xnumx}).
 		\begin{table}[hb]
 			\centering
@@ -40,18 +44,18 @@ Before doing any Classification, we need to perform several operations to transf
 				\tabularnewline
 				\bottomrule
 			\end{tabular}
-			\caption{Counts of the ten words representing digit. The first line referred to the raw data, while in the second, single digit number have been converted to the corresponding word. Although it is probably irrelevant, it is amusing to note most people write numbers with digit and not letters, especially if the number is not 1 (and to some extent, 2 and 3).}
+			\caption{Counts of the ten words representing digit. The first line referred to the raw data, while in the second, single digit number have been converted to the corresponding word. Although it is probably irrelevant, it is amusing to note most people in this informal setting write numbers with digit and not letters, especially if the number is not 1 (and to some extent, 2 and 3).}
 			\label{tab:num}
 		\end{table}
 
-\item To reduce the sparsity of data, I decide to perform a stemming step, even though is was not such a severe problem because the text are all in American English, which is a rather analytical language. Because I used the python language, I first looked at various algorithms offered by the NLTK library\autocite{bird2009nltk}. \texttt{nltk.WordNet} is based on the morphy function\footnote{\href{http://wordnet.princeton.edu/man/morphy.7WN.html}{http://wordnet.princeton.edu/man/morphy.7WN.html}} that apply some suffix-suppresion rules before looking up in a database of base forms. In my case, it was rather slow and for some reasons, it only remove plural ending (like \enquote{\emph{s}}) but do nothing about past tense verbs for instance. NLTK also implements Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithms but although it is highly subjective, there were a bit too \enquote{aggressive}, ,for instance transforming \emph{was} to \emph{wa}.  Therefore I finally choose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which nonetheless comes with its own issues such as totally discarding punctuation, segmenting differently (for instance, \emph{mid-day} to \emph{mid} and \emph{day}) and generating some irrelevant alternatives (\emph{thing} is transformed into \emph{thing} but also into \emph{the+ING}) or missing one (\emph{woke} was not changed to \emph{wake}). For the last two problems, POS tagging could have helped but because of the others issues, the two version of the text were no more aligned.
+	 \item To reduce the sparsity of data, I decide to stem all the words, even though is was not such a severe problem because the text are all in American English, which is a rather analytical language. Because I used the python language, I first looked at various algorithms offered by the \gls{nltk} library\autocite{bird2009nltk}. \texttt{nltk.WordNet} is based on the morphy function\footnote{\href{http://wordnet.princeton.edu/man/morphy.7WN.html}{http://wordnet.princeton.edu/man/morphy.7WN.html}} that apply some suffix-suppresion rules before looking up in a database of base forms. In my case, it was rather slow and for some reasons, it only remove plural ending (like \emph{s}) but did nothing about past tense verbs. NLTK also implements Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithms but although it is highly subjective, I found them a bit too \enquote{aggressive}, for instance transforming \emph{was} to \emph{wa}.  Therefore I finally choose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which nonetheless comes with its own issues such as totally discarding punctuation, segmenting differently (for instance, \emph{mid-day} to \emph{mid} and \emph{day}) and generating some irrelevant alternatives (\emph{thing} is transformed into \emph{thing} but also into \emph{the+ING}) or missing one (\emph{woke} was not changed to \emph{wake}). For the last two problems, \gls{pos} tagging could have helped but because of the others issues, the two version of the text were no more aligned.
 
 \item I also collect some general characteristics of the text, namely: the number of sentences, words and characters; the proportion of punctuation marks and capitalized letters; and the number of words per sentences.
 \item POS tagging using \autocite{bird2009nltk} (I also consider
-	using a CRF implementation \autocite[for instance][]{CRFsuite} but it
+    using a \gls{crf} implementation \autocite[for instance][]{CRFsuite} but it
 	require too much training for my goal). 23 minutes, simplified WSJ tag
-\item One thing that I did not find time to look for is Named Entity Recognition. Yet it would have been interesting to see if this kind of information can provide some insight about personality. For instance, we may imagine that someone citing a lot of different places is more likely to be classified as opened to experience.
-\item The last step was to go through all the texts to find all the distinct token along their count. A sample of that is shown in Table \vref{tab:dict}. Using this list, we can process every text individually to compute its feature vector that consist of:
+\item One thing that I have not had time to consider is Named Entity Recognition. Yet it would have been interesting to see if this kind of information can provide some insight about personality. For instance, we may imagine that someone citing a lot of different places is more likely to be classified as opened to experience.
+\item The last step was to go through all the texts to find all the distinct token along their count. A sample of that is shown in Table \vref{tab:dict}. Using this list, I process every text individually to compute its feature vector, that consist of:
 	\begin{itemize}
 		\item the five class label
 		\item the six general characteristics
@@ -74,9 +78,9 @@ Before doing any Classification, we need to perform several operations to transf
 \end{itemize}
 
 \section{Classification}
-Dimensionality reduction: SVD, LDA, ICA
+Dimensionality reduction: \gls{svd}, LDA, \gls{ica}
 
-Method: MN NB, RBF C-SVM (maybe with text kernel?), cosine kNN
+Method: MN NB, RBF C-\gls{svm} (maybe with text kernel?), cosine \gls{knn}
 
 Result tables
 
