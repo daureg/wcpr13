@@ -24,7 +24,7 @@ with open(sys.argv[1]) as f:
 N = len(texts)
 V = len(voca)
 F = 6
-wm = np.zeros((N, F+1+V), np.int16)
+wm = np.zeros((N, F+V), np.int16)
 for i, t in enumerate(texts):
     num_char = len(t)
     sentences = sent_tokenize(t)
@@ -35,10 +35,14 @@ for i, t in enumerate(texts):
     for w in words_to_stems(path_join('stemming_test', 'morph'+str(i))):
         if w in voca:
             wm[i, voca[w]+F-1] += 1
+        elif "'" in w:
+            for sw in w.split("'"):
+                wm[i, voca[sw]+F-1] += 1
+
     for s in sentences:
         words = word_tokenize(s)
         num_words += len(words)  # including punctuation and OOV
-        num_punct = len([w for w in words if w.lower() in punctuation])
+        num_punct += len([w for w in words if w.lower() in punctuation])
         # for w in words:
         #     w = w.lower()
         #     if w in voca:
@@ -58,4 +62,4 @@ for i, t in enumerate(texts):
     wm[i, 0:F] = [num_char, num_words, num_sentences, num_upper, num_punct,
                   words_per_sentence]
 
-savemat('swm', {'wm': wm}, do_compression=True, oned_as='row')
+savemat('twm', {'wm': wm}, do_compression=True, oned_as='row')
