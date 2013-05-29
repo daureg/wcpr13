@@ -1,30 +1,52 @@
 function [C,theta]=doCV(nfold, method, distance, trait)
-load('wm.mat');
-%load('sparse_orig_wm.mat');
-[N, M] = size(wm);
+load('swm.mat');
 nz=sum(full(wm)>0);
+[N, M] = size(wm);
+load('POS.mat');
+general=1:6;
+words=7:size(wm,2);
+tpos=1+size(wm,2):size(wm,2)+size(POS,2);
+tg = wm(:,general);
+wm = double(wm(:,words));
+wm = [full(tg) full(wm) POS];
+%load('sparse_orig_wm.mat');
+
+
 % words used in more than 5% of texts but less than 75%
-irt=and(nz>=.1*N, nz<=.75*N);
-sum(irt)
-features = irt;
+irt=and(nz>=.03*N, nz<=0.90*N);
+sum(irt);
+tmp=find(irt~=0);tmp(1:10);
+%features = [irt];
+% size(irt)
+% size(features)
+% size(wm)
 %features=[8:M];
 %features=full(sum(wm,1)~=0);
+tmp=randperm(size(wm,2));
+% features=[tmp(1:800)];
+features=[words tpos];
 load('label.mat')
 label = label(:,trait);
-if strcmpi(method, 'bayes')
-    lenghty = and(wm(:,1)>000,wm(:,2)>00,wm(:,3)>0);
-    %lenghty = 1:N;
-    sum(lenghty)
-    X = full(wm(lenghty, features)>0);
-else
-    X = zscore(wm(:,features));
-end
+% if strcmpi(method, 'bayes')
+% %     lenghty = and(wm(:,1)>000,wm(:,2)>00,wm(:,3)>0);
+%     lenghty = 1:N;
+%     sum(lenghty);
+%     X = double(wm(lenghty, features));
+% else
+%     u,s,v = svds(double(wm(:,features)), 250);
+%     X = u*s*v';%zscore(double(wm(:,features)));
+% end
+[u,s,v] = svds(double(wm(:,features)), 300);
+X = zscore(u*s*v');%zscore(double(wm(:,features)));
+% save('X250','X');
+% load('X250.mat')
+% X=X(:,features);
 z=randperm(size(X,1));
 pred = {};
 proba = {};
 
 if strcmpi(method, 'svm')
-    gspace=logspace(-5,-4,4);
+    gspace=logspace(-5,-4,1);
     cspace=[15];%logspace(0,2,3);
     lspace = [1];
     numtests=numel(gspace)*numel(cspace);
@@ -38,9 +60,10 @@ gparams=zeros(numtests,1);
 cparams=zeros(numtests,1);
 result = zeros(numtests, 6);
 i=1;
-for lambda = lspace
-    %% for gamma=gspace
-    %% for cost=cspace
+fakefold=5;
+% for lambda = lspace
+    for gamma=gspace
+    for cost=cspace
     tmp = zeros(nfold, 6);
     if strcmpi(method, 'svm')
         if exist('gamma', 'var') == 0
@@ -52,7 +75,7 @@ for lambda = lspace
         options=sprintf('-h 0 -m 1024 -g %.9f -c %.4f -q', gamma, cost)
     end
 
-    for j = 1:nfold
+    for j = 1:fakefold
         %j
         [tr, vl] = get_cross_set(z, nfold, j);
         numel(tr);
@@ -75,7 +98,7 @@ for lambda = lspace
                 [pred{j}, proba{j}] = predict_random(numel(gold_label), label(tr), true);
                 ttime = toc;
             case 'bayes'
-                mlnb = NaiveBayes.fit(X(tr,:), label(tr),'dist','mn');
+                mlnb = NaiveBayes.fit(X(tr,:), label(tr),'dist','nm');
                 [proba{j}, pred{j}] = mlnb.posterior(X(vl,:));
                 %% [discrim] = train_bayes_again(label(tr), X(tr,:));
                 %% [pred{j}, proba{j}] = predict_bayes_again(X(vl,:), discrim);
@@ -100,10 +123,11 @@ for lambda = lspace
     %gparams(i)=gamma;
     %cparams(i)=cost;
     i = i + 1;
-    %% end
+    end
 end
 tmp
-mean(tmp)
-distance
+mean(tmp(1:fakefold,:))
+std(tmp);
+distance;
 result;
 end
