@@ -78,6 +78,7 @@ Before doing any Classification, I perform several operations to transform the r
 		\item the count of each of the \numprint{13407} token
 	\end{itemize}
 		\begin{table}[htb]
+			\begin{adjustwidth}{-1in}{-1in}
 			\centering
 			\begin{tabular}{ccccccccccc}
 				\toprule
@@ -86,6 +87,7 @@ Before doing any Classification, I perform several operations to transform the r
 				\numprint{122593} & \numprint{56646} & \numprint{40466} & \numprint{38077} & \numprint{31740} & \numprint{29830} & \numprint{29153} & \numprint{27560} & \numprint{25299} & \numprint{23177} & \numprint{20466} \tabularnewline
 				\bottomrule
 			\end{tabular}
+			\end{adjustwidth}
 			\caption{The first 11 of the \numprint{13407} unique tokens. As expected, most of them are stop words, expect for \emph{I}, which is explained by the nature of a stream of consciousness essays and \emph{t} which comes from negation's contraction, as the texts are written rather informally.}
 			\label{tab:dict}
 		\end{table}
@@ -101,15 +103,15 @@ A simple model which assume that all features are mutually independent and only 
 
 \paragraph{\glsentrydesc{svm}}
 
-A maximum margin separator that operates in a high dimensional space derived from the original one by the use of kernel. The two classes are linearly separated by a hyperplane which from the so called \enquote{support vector}, instances selected by the optimization procedure. The kernel is a function $K(x,y)$ which measure the similarity between two instances $x$ and $y$: the smaller it is, the more related they are. The easiest choice was to use a kernel based on euclidean distance (namely, a radial basis function $K(x,y)=e^{-\frac{\vnorm{x-y}^2}{\sigma^2}}$) but it would have been more interesting to implement a common subsequence kernel\autocite{Lodhi2002kernel}, $K_n(x,y)=\sum_{s_x\in\mathcal{S}_n(x)}\sum_{s_y\in\mathcal{S}_n(y)}1_{s_x=s_y}$, that, as its name suggest, keep track of how many subsequences of length $n$ are shared by $x$ and $y$. On a practical note, I use a C++ implementation written by \textcite{Chang2001libsvm} with a MATLAB interface.
+A maximum margin separator that operates in a high dimensional space derived from the original one by the use of kernel. The two classes are linearly separated by a hyperplane which from the so called \enquote{support vector}, instances selected by the optimization procedure. The kernel is a function $K(x,y)$ which measure the similarity between two instances $x$ and $y$: the smaller it is, the more related they are. The easiest choice was to use a kernel based on euclidean distance (namely, a radial basis function $K(x,y)=e^{-\frac{\vnorm{x-y}^2}{\sigma^2}}$) but it would have been more interesting to implement a common subsequence kernel\autocite{Lodhi2002kernel}, $K_n(x,y)=\sum_{s_x\in\mathcal{S}_n(x)}\sum_{s_y\in\mathcal{S}_n(y)}1_{s_x=s_y}$, that, as its name suggest, keep track of how many subsequences of length $n$ are shared by $x$ and $y$. On a practical note, I use a C++ implementation written by \textcite{Chang2001libsvm} with a MATLAB interface. One flaw of my approach is that although \gls{svm} require careful tuning of its two parameters $\sigma^2$ and $C$ (for regularization), it is very time consuming so I did it once for one dimension and then use the same parameters for all subsequent runs.
 
 \paragraph{$k$ Nearest Neighbors}
-Contrary to the two others method, \gls{knn} has no training phase but when given a new sample to classify, it finds the $k$ closest points in the training set and assign the majority class of them. The hyperparameters of the model are $k$ and again, the distance used. Using the MATLAB implementation\footnote{\href{http://www.mathworks.se/help/stats/classificationknn.fit.html}{http://www.mathworks.se/help/stats/classificationknn.fit.html}}, I had the choice between ten of them\footnote{I discard the Mahalanobis distance because computing the covariance matrix took too much time.}, and after some preliminary comparison, I choose standardized euclidean distance, where each dimension is weighted according to its standard deviation.
+Contrary to the two others method, \gls{knn} has no training phase but when given a new sample to classify, it finds the $k$ closest points in the training set and assign the majority class of them. The hyperparameters of the model are $k$ (which I set to 5) and again, the distance used. Using the MATLAB implementation\footnote{\href{http://www.mathworks.se/help/stats/classificationknn.fit.html}{http://www.mathworks.se/help/stats/classificationknn.fit.html}}, I had the choice between ten of them,\footnote{I discard the Mahalanobis distance because computing the covariance matrix took too much time.} and after some preliminary comparison, I choose correlation distance, which one minus the linear correlation coefficient between two documents seen as a sequence of numerical value. Because I found out it does not hurt accuracy yet is beneficial for the speed, I use only only tokens that appear in more than 3\% and less than 90\% of all documents, which gives \numprint{1052} features.
 
 
-Because the dataset is almost perfectly balanced for every five traits, I decided that accuracy was a sufficient measure of assessing performances of the various methods and distinguishing them from random guessing. The other noticeable methodology point is that all measure reported have computed from 5-fold cross validation unless otherwise stated.
+Because the dataset is almost perfectly balanced for every five traits, I decided that accuracy was a sufficient measure of assessing performances of the various methods and distinguishing them from random guessing. The other noticeable methodology point is that all measure reported have computed from 5-fold cross validation unless otherwise stated.\footnote{For even more details, the code is available on github: \href{https://github.com/daureg/wcpr13}{https://github.com/daureg/wcpr13}}
 
-Since \gls{svm} performs better when all the feature are in the same range, I use tf-idf weighting with a \texttt{llc} scheme. Namely, if $N=2468$ is the number of documents, $a_{i,j}$ the number of times that word $j$ occur in document $j$ and $d_j = \sum_{i=1}^N 1_{a_{i,j}>0}$ the number of documents in which the word $j$ appear, I replace $a_{i,j}$ by $b_{i,j} = (1+\log(a_{i,j}))\log\frac{N}{d_j}$ and then I normalize the column of $B$ to unit vector (or set it to zero if the word appear in all document\footnote{Although is does not happen for this dataset.}).
+Since \gls{svm} performs better when all the feature are in the same range, I first plan to use tf-idf weighting with a \texttt{llc} scheme. Namely, if $N=2468$ is the number of documents, $a_{i,j}$ the number of times that word $j$ occur in document $j$ and $d_j = \sum_{i=1}^N 1_{a_{i,j}>0}$ the number of documents in which the word $j$ appear, I replace $a_{i,j}$ by $b_{i,j} = (1+\log(a_{i,j}))\log\frac{N}{d_j}$ and then I normalize the column of $B$ to unit vector (or set it to zero if the word appear in all document\footnote{Although is does not happen for this dataset.}). But after looking at the initial results, I simply stick with \emph{standardization}, that is subtracting the mean and dividing by the standard deviation of each column.
 
 \begin{table}[hb]
 	\centering
@@ -119,23 +121,21 @@ Since \gls{svm} performs better when all the feature are in the same range, I us
 		\midrule
 		& \multicolumn{5}{c}{Full matrix} \tabularnewline
 		\cmidrule(r){2-6}
-		\gls{mnnb} & .956 & .596 & .658 & .357 & .416 \tabularnewline
-   		\gls{svm} & .956 & .596 & .658 & .357 & .416 \tabularnewline
-   		\gls{knn} & .956 & .596 & .658 & .357 & .416 \tabularnewline
-		& \multicolumn{5}{c}{300 most relevant dimension} \tabularnewline
+		\gls{mnnb} & 0.564 & 0.587 & 0.563 & 0.552 & 0.629 \tabularnewline
+   		\gls{svm} & 0.557 & 0.532 & 0.524 & 0.528 & 0.597 \tabularnewline
+   		\gls{knn} & 0.533 & 0.521 & 0.481 & 0.514 & 0.557 \tabularnewline
+		& \multicolumn{5}{c}{250 most relevant dimension} \tabularnewline
 		\cmidrule(r){2-6}
-		\gls{mnnb} & .956 & .596 & .658 & .357 & .416 \tabularnewline
-   		\gls{svm} & .956 & .596 & .658 & .357 & .416 \tabularnewline
+		\gls{mnnb} & --- & --- & --- & --- & --- \tabularnewline
+   		\gls{svm} & run & svm & on & kosh & tonight \tabularnewline
    		\gls{knn} & .956 & .596 & .658 & .357 & .416 \tabularnewline
 		\bottomrule
 	\end{tabular}
-	\caption{Accuracy.}
+	\caption{Accuracy of the three methods for the five traits, using or not dimensionality reduction.}
 	\label{tab:res}
 \end{table}
 
-Result tables
-3 methods, 5 classif with the base matrix
-choose the better of five and try some variation: svd and td-idf (short
-explanation)
+The first comment that the results presented in Table \vref{tab:res} yield is that this kind of classification is \enquote{difficult} in the sense that in most cases, the accuracy is only slightly above what random guessing would have generated. The second is that dimensionality reduction does not produce a very noticeable impact on the results. Then, \emph{Openness} is significantly easier to predict than the others traits for all the methods. Finally, despite its conceptual simplicity, \gls{mnnb} consistently outperforms \gls{svm} while \gls{knn} is the worst of the three, probably because the metric used is not well adapted to text.
 
 \section{Conclusion}
+Predicting author's personality from one of their stream of consciousness is a difficult task that is naturally suited to \gls{snlp}. After some pre processing steps (text extraction and cleaning, stemming, \gls{pos} tagging and term-document matrix building), I try three machine learning methods to perform classification. Naïve Bayes was the most successful although the others may have benefit from the use of a distance metric tailored to text analysis.
