@@ -40,13 +40,19 @@ pdfborder={0 0 0}}
 %% \usepackage{pgfplots}
 %% \pgfplotsset{compat=1.8,width=.7\textwidth}
 \usepackage{csquotes}
-\usepackage[style=ieee,sorting=nyt,backend=biber,defernumbers=true]{biblatex}
-\addbibresource{small.bib}
+\usepackage{natbib}
+\newcommand{\autocite}[1]{\citep{#1}}
+\newcommand{\Textcite}[1]{\citep{#1}}
+\newcommand{\textcite}[1]{\citep{#1}}
+\bibliographystyle{plainnat}
+%\usepackage[style=ieee,sorting=nyt,backend=biber,defernumbers=true]{biblatex}
+%\addbibresource{small.bib}
 \usepackage{pifont}
 \renewcommand{\labelitemi}{\ding{167}}
-\usepackage[smallcaps,xindy,style=long]{glossaries}
+\usepackage[smallcaps,style=long]{glossaries}
 \makeglossaries
 \input{glossaire}
+% \usepackage{dsfont} \mathds{1}
 
 
 \title{T-61.5020 Statistical Natural Language:\\ Course assignment}
@@ -57,8 +63,10 @@ pdfborder={0 0 0}}
 
 \begin{document}
 \maketitle
+\thispagestyle{empty}
 \vspace{8\baselineskip}
 \input{content}
-\printbibliography
+% \printbibliography
+\bibliography{small}
 \printglossary[title={List of Acronyms}]
 \end{document}

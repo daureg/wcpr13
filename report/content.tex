@@ -48,7 +48,7 @@ Before doing any Classification, I perform several operations to transform the r
 			\label{tab:num}
 		\end{table}
 
-	 \item To reduce the sparsity of data, I decide to stem all the words, even though is was not such a severe problem because the text are all in American English, which is a rather analytical language. Because I used the python language, I first looked at various algorithms offered by the \gls{nltk} library\autocite{bird2009nltk}. \texttt{nltk.WordNet} is based on the morphy function\footnote{\href{http://wordnet.princeton.edu/man/morphy.7WN.html}{http://wordnet.princeton.edu/man/morphy.7WN.html}} that apply some suffix-suppresion rules before looking up in a database of base forms. In my case, it was rather slow and for some reasons, it only remove plural ending (like \emph{s}) but did nothing about past tense verbs. NLTK also implements Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithms but although it is highly subjective, I found them a bit too \enquote{aggressive}, for instance transforming \emph{was} to \emph{wa}.  Therefore I finally choose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which nonetheless comes with its own issues such as totally discarding punctuation, segmenting differently (for instance, \emph{mid-day} to \emph{mid} and \emph{day}) and generating some irrelevant alternatives (\emph{thing} is transformed into \emph{thing} but also into \emph{the+ING}) or missing one (\emph{woke} was not changed to \emph{wake}). For the last two problems, \gls{pos} tagging could have helped but because of the others issues, the two version of the text were no more aligned.
+\item To reduce the sparsity of data, I decide to stem all the words, even though is was not such a severe problem because the text are all in American English, which is a rather analytical language. Because I used the python language, I first looked at various algorithms offered by the \gls{nltk} library\autocite{bird2009nltk}. \texttt{nltk.WordNet} is based on the morphy function\footnote{\href{http://wordnet.princeton.edu/man/morphy.7WN.html}{http://wordnet.princeton.edu/man/morphy.7WN.html}} that apply some suffix-suppresion rules before looking up in a database of base forms. In my case, it was rather slow and for some reasons, it only remove plural ending (like \emph{s}) but did nothing about past tense verbs. NLTK also implements Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithms but although it is highly subjective, I found them a bit too \enquote{aggressive}, for instance transforming \emph{was} to \emph{wa}.  Therefore I finally choose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which nonetheless comes with its own issues such as totally discarding punctuation, segmenting differently (for instance, \emph{mid-day} to \emph{mid} and \emph{day}) and generating some irrelevant alternatives (\emph{thing} is transformed into \emph{thing} but also into \emph{the+ING}) or missing one (\emph{woke} was not changed to \emph{wake}). For the last two problems, \gls{pos} tagging could have helped but because of the others issues, the two version of the text were no more aligned. Still in regard with sparsity, it reduces the number of unique token from \numprint{29535} to \numprint{13407}.
 
 \item I also collect some general characteristics of the text, namely: the number of sentences, words and characters; the proportion of punctuation marks and capitalized letters; and the number of words per sentences.
 \item The use of \gls{pos} can be indication of the personnality. For instance, introverts will use more nouns while extroverts favor verbs. Thus I tagged every word with the default tagger of \gls{nltk} (based on a maximum entropy model) (I also consider using a \gls{crf} implementation \autocite[for instance][]{CRFsuite} but it require too much training for my goal). It turns out it was the most time consuming operation (more than 23 minutes on my laptop). After that, I count in every text how many times each of the 27 tags appears. A sample is shown in Table \vref{tab:pos}.
@@ -75,19 +75,18 @@ Before doing any Classification, I perform several operations to transform the r
 		\item the five class label
 		\item the six general characteristics
 		\item the count of each of the 27 part of speech
-		\item the count of each of the \numprint{29535} token
+		\item the count of each of the \numprint{13407} token
 	\end{itemize}
-		\begin{table}[hb]
+		\begin{table}[htb]
 			\centering
 			\begin{tabular}{ccccccccccc}
 				\toprule
 				i & to & the & and & that & my & a & it & is & of & t \tabularnewline
 				\midrule
-				\numprint{123196} & \numprint{56649} & \numprint{40482} & \numprint{38078} & \numprint{31492} & \numprint{29831} & \numprint{29168} & \numprint{27563} & \numprint{25302} & \numprint{23179} & \numprint{20672}
-				\tabularnewline
+				\numprint{122593} & \numprint{56646} & \numprint{40466} & \numprint{38077} & \numprint{31740} & \numprint{29830} & \numprint{29153} & \numprint{27560} & \numprint{25299} & \numprint{23177} & \numprint{20466} \tabularnewline
 				\bottomrule
 			\end{tabular}
-			\caption{The first 11 of the \numprint{29535} unique tokens. As expected, most of them are stop words, expect for \emph{I}, which is explained by the nature of a stream of consciousness essays and \emph{t} which comes from negation's contraction, as the texts are written rather informally.}
+			\caption{The first 11 of the \numprint{13407} unique tokens. As expected, most of them are stop words, expect for \emph{I}, which is explained by the nature of a stream of consciousness essays and \emph{t} which comes from negation's contraction, as the texts are written rather informally.}
 			\label{tab:dict}
 		\end{table}
 \end{itemize}
@@ -102,14 +101,37 @@ A simple model which assume that all features are mutually independent and only 
 
 \paragraph{\glsentrydesc{svm}}
 
-A maximum margin separator that operates in a high dimensional space derived from the original one by the use of kernel. The two classes are linearly separated by a hyperplane which from the so called \enquote{support vector}, instances selected by the optimization procedure. The kernel is a function $K(x,y)$ which measure the similarity between two instances $x$ and $y$: the smaller it is, the more related they are. The easiest choice was to use a kernel based on euclidean distance (namely, a radial basis function $K(x,y)=e^{-\frac{\vnorm{x-y}^2}{\sigma^2}}$) but it would have been more interesting to implement a common subsequence kernel. I use a C++ implementation written by \textcite{Chang2001libsvm} with a MATLAB interface.
+A maximum margin separator that operates in a high dimensional space derived from the original one by the use of kernel. The two classes are linearly separated by a hyperplane which from the so called \enquote{support vector}, instances selected by the optimization procedure. The kernel is a function $K(x,y)$ which measure the similarity between two instances $x$ and $y$: the smaller it is, the more related they are. The easiest choice was to use a kernel based on euclidean distance (namely, a radial basis function $K(x,y)=e^{-\frac{\vnorm{x-y}^2}{\sigma^2}}$) but it would have been more interesting to implement a common subsequence kernel\autocite{Lodhi2002kernel}, $K_n(x,y)=\sum_{s_x\in\mathcal{S}_n(x)}\sum_{s_y\in\mathcal{S}_n(y)}1_{s_x=s_y}$, that, as its name suggest, keep track of how many subsequences of length $n$ are shared by $x$ and $y$. On a practical note, I use a C++ implementation written by \textcite{Chang2001libsvm} with a MATLAB interface.
 
 \paragraph{$k$ Nearest Neighbors}
-MATLAB implementation\footnote{\href{http://www.mathworks.se/help/stats/classificationknn.fit.html}{http://www.mathworks.se/help/stats/classificationknn.fit.html}}, same distance issue, compared several of them.
+Contrary to the two others method, \gls{knn} has no training phase but when given a new sample to classify, it finds the $k$ closest points in the training set and assign the majority class of them. The hyperparameters of the model are $k$ and again, the distance used. Using the MATLAB implementation\footnote{\href{http://www.mathworks.se/help/stats/classificationknn.fit.html}{http://www.mathworks.se/help/stats/classificationknn.fit.html}}, I had the choice between ten of them\footnote{I discard the Mahalanobis distance because computing the covariance matrix took too much time.}, and after some preliminary comparison, I choose standardized euclidean distance, where each dimension is weighted according to its standard deviation.
 
-balanced so accuracy is a sufficient measure to assess performance and
-distinguish from random guessing. 5-fold cross validation.
 
+Because the dataset is almost perfectly balanced for every five traits, I decided that accuracy was a sufficient measure of assessing performances of the various methods and distinguishing them from random guessing. The other noticeable methodology point is that all measure reported have computed from 5-fold cross validation unless otherwise stated.
+
+Since \gls{svm} performs better when all the feature are in the same range, I use tf-idf weighting with a \texttt{llc} scheme. Namely, if $N=2468$ is the number of documents, $a_{i,j}$ the number of times that word $j$ occur in document $j$ and $d_j = \sum_{i=1}^N 1_{a_{i,j}>0}$ the number of documents in which the word $j$ appear, I replace $a_{i,j}$ by $b_{i,j} = (1+\log(a_{i,j}))\log\frac{N}{d_j}$ and then I normalize the column of $B$ to unit vector (or set it to zero if the word appear in all document\footnote{Although is does not happen for this dataset.}).
+
+\begin{table}[hb]
+	\centering
+	\begin{tabular}{cccccc}
+		\toprule
+		& Extroversion & Neuroticism & Agreeableness & Conscientiousness & Openness \tabularnewline
+		\midrule
+		& \multicolumn{5}{c}{Full matrix} \tabularnewline
+		\cmidrule(r){2-6}
+		\gls{mnnb} & .956 & .596 & .658 & .357 & .416 \tabularnewline
+   		\gls{svm} & .956 & .596 & .658 & .357 & .416 \tabularnewline
+   		\gls{knn} & .956 & .596 & .658 & .357 & .416 \tabularnewline
+		& \multicolumn{5}{c}{300 most relevant dimension} \tabularnewline
+		\cmidrule(r){2-6}
+		\gls{mnnb} & .956 & .596 & .658 & .357 & .416 \tabularnewline
+   		\gls{svm} & .956 & .596 & .658 & .357 & .416 \tabularnewline
+   		\gls{knn} & .956 & .596 & .658 & .357 & .416 \tabularnewline
+		\bottomrule
+	\end{tabular}
+	\caption{Accuracy.}
+	\label{tab:res}
+\end{table}
 
 Result tables
 3 methods, 5 classif with the base matrix
