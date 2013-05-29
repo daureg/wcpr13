@@ -1,4 +1,3 @@
 preprocess: stem/lemma & POS
 reduction: SVD
 classif: Bayes, kNN
-report: read paper for intro
