@@ -49,4 +49,5 @@ def words_to_stems(stem_filename):
     return final_stems
 
 if __name__ == '__main__':
-    (words_to_stems('morph2'))
+    for i in range(4,6):
+        print(words_to_stems('morph'+str(i)))
