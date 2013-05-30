@@ -1,4 +1,4 @@
-\documentclass[a4paper,svgnames,final,notitlepage,12pt,parskip=half+]{scrartcl}
+\documentclass[a4paper,svgnames,final,titlepage,12pt,parskip=half+]{scrartcl}
 \usepackage{ifxetex}
 \ifxetex
 % article, report, book, lettre, scrartcl, scrreprt, scrbook, scrlettr
@@ -29,16 +29,12 @@ pdfborder={0 0 0}}
 
 \usepackage{graphicx}
 \usepackage{subfig}
-% \usepackage{amsmath}
 \newcommand{\vnorm}[1]{\left|\left|#1\right|\right|}
 \usepackage{booktabs}
 \usepackage{microtype}
-%% \usepackage[top=2cm, bottom=1.9cm, left=2cm, right=2cm]{geometry}
 \usepackage[autolanguage]{numprint}
 \usepackage{xspace}
 \usepackage{varioref}
-%% \usepackage{pgfplots}
-%% \pgfplotsset{compat=1.8,width=.7\textwidth}
 \usepackage{csquotes}
 \usepackage{natbib}
 \newcommand{\autocite}[1]{\citep{#1}}
@@ -56,6 +52,23 @@ pdfborder={0 0 0}}
 % \usepackage{dsfont} \mathds{1}
 
 
+% abstract in scrartcl from http://tex.stackexchange.com/a/40547
+\newsavebox{\abstractbox}
+\renewenvironment{abstract}
+  {\begin{lrbox}{0}\begin{minipage}{\textwidth}
+   \begin{center}\normalfont\sectfont\abstractname\end{center}\quotation}
+  {\endquotation\end{minipage}\end{lrbox}%
+   \global\setbox\abstractbox=\box0 }
+
+\usepackage{etoolbox}
+\makeatletter
+\expandafter\patchcmd\csname\string\maketitle\endcsname
+  {\vskip\z@\@plus3fill}
+  {\vskip\z@\@plus2fill\box\abstractbox\vskip\z@\@plus1fill}
+  {}{}
+\makeatother
+
+
 \title{T-61.5020 Statistical Natural Language:\\ Course assignment}
 \subtitle{Comparing methods to classify texts according to the personality of
 	its author}
@@ -63,9 +76,10 @@ pdfborder={0 0 0}}
 \href{geraud.lefalher@aalto.fi}{\textcolor{Indigo}{\textsc{geraud.lefalher@aalto.fi}}}}}
 
 \begin{document}
+\begin{abstract}
+	In this project, I studied how free texts can be analyzed to determine the five major traits of the author's personality. After carefully extracting a term document matrix using stemming, I compared the classification performance of three methods, \glsentrydesc{svm}, \glsentrydesc{mnnb} and $k$-Nearest Neighbors before concluding that the task is difficult. Indeed, the best accuracy achieved overall is 62.9\%.
+\end{abstract}
 \maketitle
-\thispagestyle{empty}
-\vspace{8\baselineskip}
 \input{content}
 % \printbibliography
 \bibliography{small}

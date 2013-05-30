@@ -1,33 +1,29 @@
-\begin{abstract}
-	Summarize problem, method and result in 150 words.
-\end{abstract}
-\newpage
-
 \section{Introduction}
 Human personality can be described in terms of five \emph{traits}\footnote{Although others are listed on
 \href{http://en.wikipedia.org/wiki/Trait\_theory\#List\_of\_personality\_traits}{the
 relevant Wikipedia page}.}, presented in \autocite{mairesse2007perso} as follow:
 \begin{itemize}
-\item Extraversion vs. Introversion (sociable, assertive, playful vs. aloof, reserved, shy)
+\item Extroversion vs. Introversion (sociable, assertive, playful vs. aloof, reserved, shy)
 \item Emotional stability vs. Neuroticism (calm, unemotional vs. insecure, anxious)
 \item Agreeableness vs. Disagreeable (friendly, cooperative vs. antagonistic, faultfinding)
-\item Conscientiousness vs. Unconscientious (self-disciplined, organised vs. inefficient, careless)
+\item Conscientiousness vs. Unconscientious (self-disciplined, organized vs. inefficient, careless)
 \item Openness to experience (intellectual, insightful vs. shallow, unimaginative)
 \end{itemize}
 
-In this project, we will consider that each of these dimensions is binary (whereas one may argue that no individual can be perfectly extroverted or introverted) and we will try to classify people in each dimension based on their writing. More specifically, some student were asked to produce a so called \emph{stream of consciousness} essay, meaning that they wrote their current thoughts freely for twenty minutes. \Textcite{pennebaker1999corpus} collected 2468 such essays which account for about 1.6 millions words\footnote{It is surprisingly difficult to come with a precise figure because \emph{word} is loosely defined.}. Furthermore, they labelled this dataset by assessing the personality of each author with a standard questionnaire.
+In this project, we will consider that each of these dimensions is binary (whereas one may argue that no individual can be perfectly extroverted or introverted) and we will try to classify people in each dimension based on their writing. More specifically, some students were asked to produce a so called \emph{stream of consciousness} essay, meaning that they wrote their current thoughts freely for twenty minutes. \Textcite{pennebaker1999corpus} have collected 2468 such essays which account for about 1.6 million words.\footnote{It is surprisingly difficult to come with a precise figure because \emph{word} is loosely defined.} Furthermore, they have labeled this dataset by assessing the personality of each author with a standard questionnaire.
 
-Psychology has show that the way we express ourselves (for instance by writing) reflect our personality. A summary of these findings in the case of extraversion is given in\autocite[][Table 1]{mairesse2007perso}. For instance, introverts tend to use a more diverse lexicon, more elaborated constructions but less positive emotion words. In Bayesian terms, we would say that the text is an observed variable which is conditioned by a hidden one, the personality. It is then quite natural to use a statistical natural language processing approach, first by extracting relevant features (described in section \vref{sec:preprop}) and then training different kind of classifiers like \gls{mnnb}, \gls{knn} and \gls{svm} (as explained in section \vref{sec:class}).
+Psychology has showed that the way we express ourselves (for instance by writing) reflects our personality. A summary of these findings in the case of extroversion is given in\autocite[][Table 1]{mairesse2007perso}. For instance, introverts tend to use a more diverse lexicon, more elaborated constructions but less positive emotion words. In Bayesian terms, we would say that the text is an observed variable which is conditioned by a hidden one, the personality. It is then quite natural to use a statistical natural language processing approach, first by extracting relevant features (described in Section \vref{sec:preprop}) and then training classifiers of a different kind like \gls{mnnb}, \gls{knn} and \gls{svm} (as explained in Section \vref{sec:class}).
 
 In itself, this problem is not of much interest, first because it is not a very convenient for the people being assessed to spend twenty minutes writing a text and also because this information alone is of little use. Yet it is interesting as a sub routine for a higher level task like matching users in a dating site or forming team of workers. It may also affect the choice of a more refined model for further mining of an individual's texts. Finally, it can be thought as a generalization of sentiment analysis, where instead of deciding between rather straightforward and factual classes (positive or negative), more complex facets of expression are analyzed.
 
 \section{Pre processing}
 \label{sec:preprop}
-Before doing any Classification, I perform several operations to transform the raw data contained in the file \texttt{essays.csv} into a document-term matrix, which is a more suitable representation.
+Before doing any classification, I performed several operations to transform the raw data contained in the file \texttt{essays.csv} into a document-term matrix, which is a more suitable representation.
 \begin{itemize}
-	\item First, I separate in each line the text itself from the five labels, which pose no difficulties but is mentioned here for the sake of completeness. Another \enquote{easy but annoying} issue was that some characters generate encoding error (which was solved not elegantly by removing them, since there was only a few of them).
-	\item I then wondered what to do about numbers not written in full. I changed single digit into equivalent word (as shown in Table \vref{tab:num}) and replace all the other by a single unique token (\texttt{xnumx}).
+	\item First, in each line, I separated the text itself from the five labels, which posed no difficulties but is mentioned here for the sake of completeness. Another \enquote{easy but annoying} issue was that some characters were generating encoding errors (which was solved not elegantly by removing them, since there was only a few of them).
+	\item I then wondered what to do about numbers not written in full. I changed single digit into equivalent word (as shown in Table \vref{tab:num}) and replaced all the others by a single unique token (\texttt{xnumx}).
 		\begin{table}[hb]
+			\begin{adjustwidth}{-1in}{-1in}
 			\centering
 			\begin{tabular}{cccccccccccc}
 				\toprule
@@ -44,15 +40,17 @@ Before doing any Classification, I perform several operations to transform the r
 				\tabularnewline
 				\bottomrule
 			\end{tabular}
-			\caption{Counts of the ten words representing digit. The first line referred to the raw data, while in the second, single digit number have been converted to the corresponding word. Although it is probably irrelevant, it is amusing to note most people in this informal setting write numbers with digit and not letters, especially if the number is not 1 (and to some extent, 2 and 3).}
+		\end{adjustwidth}
+			\caption{Counts of the ten words representing digits. The first line refers to the raw data, whereas in the second, single digit number have been converted to the corresponding word. Although it is probably irrelevant, it is amusing to note most people in this informal setting write numbers with digit and not letters, especially if the number is not 1 (and to some extent, 2 and 3).}
 			\label{tab:num}
 		\end{table}
 
-\item To reduce the sparsity of data, I decide to stem all the words, even though is was not such a severe problem because the text are all in American English, which is a rather analytical language. Because I used the python language, I first looked at various algorithms offered by the \gls{nltk} library\autocite{bird2009nltk}. \texttt{nltk.WordNet} is based on the morphy function\footnote{\href{http://wordnet.princeton.edu/man/morphy.7WN.html}{http://wordnet.princeton.edu/man/morphy.7WN.html}} that apply some suffix-suppresion rules before looking up in a database of base forms. In my case, it was rather slow and for some reasons, it only remove plural ending (like \emph{s}) but did nothing about past tense verbs. NLTK also implements Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithms but although it is highly subjective, I found them a bit too \enquote{aggressive}, for instance transforming \emph{was} to \emph{wa}.  Therefore I finally choose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which nonetheless comes with its own issues such as totally discarding punctuation, segmenting differently (for instance, \emph{mid-day} to \emph{mid} and \emph{day}) and generating some irrelevant alternatives (\emph{thing} is transformed into \emph{thing} but also into \emph{the+ING}) or missing one (\emph{woke} was not changed to \emph{wake}). For the last two problems, \gls{pos} tagging could have helped but because of the others issues, the two version of the text were no more aligned. Still in regard with sparsity, it reduces the number of unique token from \numprint{29535} to \numprint{13407}.
+\item To reduce the sparsity of data, I decided to stem all the words, even though it was not such a severe problem because the texts were all in American English, which is a rather analytical language. Because I used the python language, I first looked at various algorithms offered by the \gls{nltk} library\autocite{bird2009nltk}. \texttt{nltk.WordNet} is based on the morphy function\footnote{\href{http://wordnet.princeton.edu/man/morphy.7WN.html}{http://wordnet.princeton.edu/man/morphy.7WN.html}} that applies some suffix-suppression rules before looking up in a database of base forms. In my case, it was rather slow and for some reasons, it only removed plural endings (like \emph{s}) but did nothing about past tense verbs. NLTK also implements Porter\autocite{porter1980algo} and Snowball\autocite{porter2001snowball} algorithms but although it is highly subjective, I found them somewhat too \enquote{aggressive}, for instance transforming \emph{was} to \emph{wa}. Therefore I finally chose hunspell\footnote{\href{http://hunspell.sourceforge.net/}{http://hunspell.sourceforge.net/}}, which nonetheless came with its own issues such as totally discarding punctuation, segmenting differently (for instance, \emph{mid-day} to \emph{mid} and \emph{day}) and generating some irrelevant alternatives (\emph{thing} is transformed into \emph{thing} but also into \emph{the+ING}) or missing one (\emph{woke} was not changed to \emph{wake}). For the last two problems, \gls{pos} tagging could have helped but because of the other issues, the two version of the text were no more aligned. Still in regard with sparsity, it reduces the number of unique tokens from \numprint{29535} to \numprint{13407}.
 
-\item I also collect some general characteristics of the text, namely: the number of sentences, words and characters; the proportion of punctuation marks and capitalized letters; and the number of words per sentences.
-\item The use of \gls{pos} can be indication of the personnality. For instance, introverts will use more nouns while extroverts favor verbs. Thus I tagged every word with the default tagger of \gls{nltk} (based on a maximum entropy model) (I also consider using a \gls{crf} implementation \autocite[for instance][]{CRFsuite} but it require too much training for my goal). It turns out it was the most time consuming operation (more than 23 minutes on my laptop). After that, I count in every text how many times each of the 27 tags appears. A sample is shown in Table \vref{tab:pos}.
+\item I also collected some general characteristics of the text, namely: the number of sentences, words and characters; the proportion of punctuation marks and capitalized letters; and the number of words per sentences.
+\item The use of \gls{pos} can be indication of the personality. For instance, introverts use more nouns while extroverts favor verbs. Thus I tagged every word with the default tagger of \gls{nltk} (based on a maximum entropy model) (I also considered using a \gls{crf} implementation \autocite[for instance][]{CRFsuite} but it required too much training for my goal). It turned out it was the most time consuming operation (more than 23 minutes on my laptop). After that, I counted in every text how many times each of the 27 tags appears. A sample is shown in Table \vref{tab:pos}.
     \begin{table}[hb]
+		\begin{adjustwidth}{-1in}{-1in}
 	   \centering
 	   \begin{tabular}{ccccccccc}
 		  \toprule
@@ -65,12 +63,13 @@ Before doing any Classification, I perform several operations to transform the r
 		  text 1804 & 38 & 21 & 68 & 35 & 58 & 57 & 24 & 44\tabularnewline
 		  \bottomrule
 	   \end{tabular}
+   		\end{adjustwidth}
 	   \caption{Repartition of the eight most represented tag in total and for
 	   three random texts.}
 	   \label{tab:pos}
     \end{table}
-\item One thing that I have not had time to consider is Named Entity Recognition. Yet it would have been interesting to see if this kind of information can provide some insight about personality. For instance, we may imagine that someone citing a lot of different places is more likely to be classified as opened to experience.
-\item The last step was to go through all the texts to find all the distinct token along their count. A sample of that is shown in Table \vref{tab:dict}. Using this list, I process every text individually to compute its feature vector, that consist of:
+\item One thing that I have not had time to consider is Named Entity Recognition. Yet it would have been interesting to see if this kind of information provide some insight about personality. For instance, we may imagine that someone citing a lot of different places is more likely to be classified as opened to experience.
+\item The last step was to go through all the texts to find all the distinct tokens along their counts. A sample of that is shown in Table \vref{tab:dict}. Using this list, I processed every text individually to compute its feature vector, that consists of:
 	\begin{itemize}
 		\item the five class label
 		\item the six general characteristics
@@ -95,7 +94,7 @@ Before doing any Classification, I perform several operations to transform the r
 
 \section{Classification}
 \label{sec:class}
-Another way to alleviate the sparsity problem is to resort to general methods of dimensionality reduction such as \gls{som} or \gls{ica}. Due to lack of time, I only experiment with \gls{lsi}, which consist of computing a \gls{svd} of the document matrix $W$ and keeping only the $r$ largest values.
+Another way to alleviate the sparsity problem is to resort to general methods of dimensionality reduction such as \gls{som} or \gls{ica}. Due to lack of time, I only experimented with \gls{lsi}, which consist of computing a \gls{svd} of the document matrix $W$ and keeping only the $r$ largest values.
 
 \paragraph{\glsentrydesc{mnnb}}
 
@@ -103,17 +102,18 @@ A simple model which assume that all features are mutually independent and only 
 
 \paragraph{\glsentrydesc{svm}}
 
-A maximum margin separator that operates in a high dimensional space derived from the original one by the use of kernel. The two classes are linearly separated by a hyperplane which from the so called \enquote{support vector}, instances selected by the optimization procedure. The kernel is a function $K(x,y)$ which measure the similarity between two instances $x$ and $y$: the smaller it is, the more related they are. The easiest choice was to use a kernel based on euclidean distance (namely, a radial basis function $K(x,y)=e^{-\frac{\vnorm{x-y}^2}{\sigma^2}}$) but it would have been more interesting to implement a common subsequence kernel\autocite{Lodhi2002kernel}, $K_n(x,y)=\sum_{s_x\in\mathcal{S}_n(x)}\sum_{s_y\in\mathcal{S}_n(y)}1_{s_x=s_y}$, that, as its name suggest, keep track of how many subsequences of length $n$ are shared by $x$ and $y$. On a practical note, I use a C++ implementation written by \textcite{Chang2001libsvm} with a MATLAB interface. One flaw of my approach is that although \gls{svm} require careful tuning of its two parameters $\sigma^2$ and $C$ (for regularization), it is very time consuming so I did it once for one dimension and then use the same parameters for all subsequent runs.
+A maximum margin separator that operates in a high dimensional space derived from the original one by the use of a kernel. There, the two classes are linearly separated by a hyperplane described by the so called \enquote{support vector} instances, selected by the optimization procedure. It works because kernel is a function $K(x,y)$ which measure the similarity between two instances $x$ and $y$: the smaller it is, the more related they are. The easiest choice was to use a kernel based on euclidean distance (namely, a radial basis function $K(x,y)=e^{-\frac{\vnorm{x-y}^2}{\sigma^2}}$) but it would have been more interesting to implement a common subsequence kernel\autocite{Lodhi2002kernel}, $K_n(x,y)=\sum_{s_x\in\mathcal{S}_n(x)}\sum_{s_y\in\mathcal{S}_n(y)}1_{s_x=s_y}$, that, as its name suggest, keep track of how many subsequences of length $n$ are shared by $x$ and $y$. On a practical note, I used a C++ implementation written by \textcite{Chang2001libsvm} with a MATLAB interface. One flaw of my approach was that although \gls{svm} requires careful tuning of its two parameters $\sigma^2$ and $C$ (for regularization), it is very time consuming so I did it once for one dimension and then use the same parameters for all subsequent runs.
 
 \paragraph{$k$ Nearest Neighbors}
-Contrary to the two others method, \gls{knn} has no training phase but when given a new sample to classify, it finds the $k$ closest points in the training set and assign the majority class of them. The hyperparameters of the model are $k$ (which I set to 5) and again, the distance used. Using the MATLAB implementation\footnote{\href{http://www.mathworks.se/help/stats/classificationknn.fit.html}{http://www.mathworks.se/help/stats/classificationknn.fit.html}}, I had the choice between ten of them,\footnote{I discard the Mahalanobis distance because computing the covariance matrix took too much time.} and after some preliminary comparison, I choose correlation distance, which one minus the linear correlation coefficient between two documents seen as a sequence of numerical value. Because I found out it does not hurt accuracy yet is beneficial for the speed, I use only only tokens that appear in more than 3\% and less than 90\% of all documents, which gives \numprint{1052} features.
+Contrary to the two other methods, \gls{knn} has no training phase but when given a new sample to classify, it finds the $k$ closest points in the training set and assign their majority class. The hyperparameters of the model are $k$ (which I set to 5) and again, the distance used. Using the MATLAB implementation\footnote{\href{http://www.mathworks.se/help/stats/classificationknn.fit.html}{http://www.mathworks.se/help/stats/classificationknn.fit.html}}, I had the choice between ten of them,\footnote{I discard the Mahalanobis distance because computing the covariance matrix took too much time.} and after some preliminary comparison, I chose correlation distance, which is one minus the linear correlation coefficient between two documents seen as a sequence of numerical value. Because I found out it did not hurt accuracy yet it was beneficial to the speed, I used only tokens that appeared in more than 3\% and less than 90\% of all documents, which gave \numprint{1052} features.
 
 
-Because the dataset is almost perfectly balanced for every five traits, I decided that accuracy was a sufficient measure of assessing performances of the various methods and distinguishing them from random guessing. The other noticeable methodology point is that all measure reported have computed from 5-fold cross validation unless otherwise stated.\footnote{For even more details, the code is available on github: \href{https://github.com/daureg/wcpr13}{https://github.com/daureg/wcpr13}}
+Since the dataset was almost perfectly balanced for every five traits, I decided that accuracy was a sufficient measure of assessing performances of the various methods and distinguishing them from random guessing. The other noticeable methodology point is that all measures reported have been computed from 5-fold cross validation.\footnote{For even more details, the code is available on github: \href{https://github.com/daureg/wcpr13}{https://github.com/daureg/wcpr13}}
 
-Since \gls{svm} performs better when all the feature are in the same range, I first plan to use tf-idf weighting with a \texttt{llc} scheme. Namely, if $N=2468$ is the number of documents, $a_{i,j}$ the number of times that word $j$ occur in document $j$ and $d_j = \sum_{i=1}^N 1_{a_{i,j}>0}$ the number of documents in which the word $j$ appear, I replace $a_{i,j}$ by $b_{i,j} = (1+\log(a_{i,j}))\log\frac{N}{d_j}$ and then I normalize the column of $B$ to unit vector (or set it to zero if the word appear in all document\footnote{Although is does not happen for this dataset.}). But after looking at the initial results, I simply stick with \emph{standardization}, that is subtracting the mean and dividing by the standard deviation of each column.
+Because \gls{svm} performs better when all the features are in the same range, I first planned to use tf-idf weighting with a \texttt{llc} scheme. Namely, if $N=2468$ is the number of documents, $a_{i,j}$ the number of times that word $j$ occurs in document $j$ and $d_j = \sum_{i=1}^N 1_{a_{i,j}>0}$ the number of documents that contain the word $j$ appear, I replaced $a_{i,j}$ by $b_{i,j} = (1+\log(a_{i,j}))\log\frac{N}{d_j}$ and then I normalized the column of $B$ to unit vector (or set it to zero if the word appears in all document\footnote{Although it did not happen in this dataset.}). But after looking at the initial results, I simply stuck with \emph{standardization}, that is subtracting the mean and dividing by the standard deviation of each column.
 
 \begin{table}[hb]
+	\begin{adjustwidth}{-2pt}{-2pt}
 	\centering
 	\begin{tabular}{cccccc}
 		\toprule
@@ -124,18 +124,19 @@ Since \gls{svm} performs better when all the feature are in the same range, I fi
 		\gls{mnnb} & 0.564 & 0.587 & 0.563 & 0.552 & 0.629 \tabularnewline
    		\gls{svm} & 0.557 & 0.532 & 0.524 & 0.528 & 0.597 \tabularnewline
    		\gls{knn} & 0.533 & 0.521 & 0.481 & 0.514 & 0.557 \tabularnewline
-		& \multicolumn{5}{c}{250 most relevant dimension} \tabularnewline
+		& \multicolumn{5}{c}{250 most relevant dimensions} \tabularnewline
 		\cmidrule(r){2-6}
 		\gls{mnnb} & --- & --- & --- & --- & --- \tabularnewline
-   		\gls{svm} & run & svm & on & kosh & tonight \tabularnewline
-   		\gls{knn} & .956 & .596 & .658 & .357 & .416 \tabularnewline
+   		\gls{svm} & 0.550 & 0.551 & 0.542 & 0.517 & 0.573 \tabularnewline
+   		\gls{knn} & 0.518 & 0.522 & 0.509 & 0.509 & 0.526 \tabularnewline
 		\bottomrule
 	\end{tabular}
-	\caption{Accuracy of the three methods for the five traits, using or not dimensionality reduction.}
+	\end{adjustwidth}
+	\caption{Accuracy of the three methods for the five traits, using or not dimensionality reduction (the multinomial assumption does not hold after the \glsentrytext{svd} reconstruction).}
 	\label{tab:res}
 \end{table}
 
-The first comment that the results presented in Table \vref{tab:res} yield is that this kind of classification is \enquote{difficult} in the sense that in most cases, the accuracy is only slightly above what random guessing would have generated. The second is that dimensionality reduction does not produce a very noticeable impact on the results. Then, \emph{Openness} is significantly easier to predict than the others traits for all the methods. Finally, despite its conceptual simplicity, \gls{mnnb} consistently outperforms \gls{svm} while \gls{knn} is the worst of the three, probably because the metric used is not well adapted to text.
+The first comment that the results presented in Table \vref{tab:res} calls is that this kind of classification is \enquote{difficult} in the sense that in most cases, the accuracy is only slightly above what random guessing would have generated. The second is that dimensionality reduction does not produce a very noticeable impact on the results. Then, \emph{Openness} is significantly easier to predict than the other traits for all the methods. Finally, despite its conceptual simplicity, \gls{mnnb} consistently outperforms \gls{svm} while \gls{knn} is the worst of the three, probably because the metric used is not well adapted to text.
 
 \section{Conclusion}
-Predicting author's personality from one of their stream of consciousness is a difficult task that is naturally suited to \gls{snlp}. After some pre processing steps (text extraction and cleaning, stemming, \gls{pos} tagging and term-document matrix building), I try three machine learning methods to perform classification. Naïve Bayes was the most successful although the others may have benefit from the use of a distance metric tailored to text analysis.
+Predicting author's personality from one of their stream of consciousness essays is a difficult task that is naturally suited to \gls{snlp}. After some pre-processing steps (text extraction and cleaning, stemming, \gls{pos} tagging and term-document matrix building), I tried three machine learning methods to perform classification. Naïve Bayes was the most successful although the others may have benefit from the use of a distance metric tailored to text analysis.
