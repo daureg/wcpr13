@@ -36,20 +36,15 @@ pdfborder={0 0 0}}
 \usepackage{xspace}
 \usepackage{varioref}
 \usepackage{csquotes}
-\usepackage{natbib}
-\newcommand{\autocite}[1]{\citep{#1}}
-\newcommand{\Textcite}[1]{\citep{#1}}
-\newcommand{\textcite}[1]{\citep{#1}}
-\bibliographystyle{plainnat}
-%\usepackage[style=ieee,sorting=nyt,backend=biber,defernumbers=true]{biblatex}
-%\addbibresource{small.bib}
+\usepackage[style=ieee,sorting=nyt,backend=biber,defernumbers=true]{biblatex}
+\addbibresource{small.bib}
 \usepackage{pifont}
 \renewcommand{\labelitemi}{\ding{167}}
-\usepackage[smallcaps,style=long]{glossaries}
+\usepackage[smallcaps,xindy,style=long]{glossaries}
 \makeglossaries
 \input{glossaire}
 \usepackage{changepage}
-% \usepackage{dsfont} \mathds{1}
+\usepackage{dsfont}
 
 
 % abstract in scrartcl from http://tex.stackexchange.com/a/40547
@@ -81,7 +76,6 @@ pdfborder={0 0 0}}
 \end{abstract}
 \maketitle
 \input{content}
-% \printbibliography
-\bibliography{small}
+\printbibliography
 \printglossary[title={List of Acronyms}]
 \end{document}
